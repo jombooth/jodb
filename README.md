@@ -1,0 +1,2 @@
+# jodb
+primitive python database
