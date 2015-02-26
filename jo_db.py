@@ -1,5 +1,5 @@
 
-class DataSheet(dict):
+class DataSheet(object):
     def __init__(self, data_file=None):
         self.cols = {}
         self.row_map = {}
@@ -8,7 +8,7 @@ class DataSheet(dict):
 
         if data_file is not None:
             data = data_file.read()
-            rows = [row for row in data.split('\n') if row.strip() != ""]
+            rows = [row for row in data.split('\n') if row.strip() != '']
             self.row_count = len(rows)
 
             for i in range(0, self.row_count):
@@ -16,7 +16,7 @@ class DataSheet(dict):
                 # int -> int mapping
                 self.row_map[i] = i
 
-                row_fields = rows[i].split(",")
+                row_fields = rows[i].split(',')
 
                 num_fields_in_row = len(row_fields)
                 self.col_count = max(self.col_count, num_fields_in_row)
@@ -35,18 +35,26 @@ class DataSheet(dict):
     def shape(self):
         return (self.row_count, self.col_count)
 
-    def pretty_print(self, field_width=15, sep="| "):
+    def pretty_print(self, field_width=15, sep='| '):
 
-        def fill_to_width(field):
+        def fill_to_width(field, with_sep=False):
             """
             Given a field to be displayed, space-pad or truncate it to field_width.
+            Note that we copy field_width to _field_width so we can modify it
             """
-            if len(field) <= field_width:
-                field += " " * (field_width - len(field))
-            return field[:field_width]
+            _field_width = field_width
+
+            if with_sep:
+                _field_width += (len(sep) - 1)
+
+            if len(field) <= _field_width:
+                field += ' ' * (_field_width - len(field))
+            return field[:_field_width]
 
         # find with of rendered database endcaps
         cap_width = ((field_width + len(sep)) * self.col_count + 1)
+
+
 
         print "_" * cap_width
 
@@ -60,11 +68,16 @@ class DataSheet(dict):
 
                     row_buf += fill_to_width(row_datum) + sep
                 except KeyError:
-                    row_buf += fill_to_width("NULL") + sep
+                    row_buf += fill_to_width('NULL') + sep
 
-            print row_buf + "<- row %s, maps to row %s" % (str(i), str(self.row_map[i]))
+            print row_buf + '<- row %s, maps to row %s' % (str(i), str(self.row_map[i]))
 
-        print "*" * cap_width
+        print '*' * cap_width
+
+        # TODO: add named columns?
+        for i in range(0, self.col_count):
+            print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
+        print '\n'
 
     def add_cols(self, col_num_a, col_num_b, treat_as=None):
         pass
