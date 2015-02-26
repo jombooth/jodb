@@ -93,12 +93,64 @@ class DataSheet(object):
             print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
         print '\n'
 
-    def unop_col(self, col_num_a, f):
+    def reduce_col(self, col_num_a, f, init):
+        """
+        let a0, a1, ... , an
+        be the elements of col_num_a. Then return (f an ... (f a2 (f a1 init)) ... )
+        """
         pass
+
+    def unop_col(self, col_num_a, f):
+        """
+        Perform a unary operation f on one column, and display
+        a DataSheet containing only the modified column. This
+        DataSheet will inherit its row_map from its parent.
+        """
+        new_col = DataSheet()
+        new_col.cols[0] = {v: f(self.cols[col_num_a][v]) for (_,v) in self.row_map.iteritems()}
+
+        new_col.col_count = 1
+        new_col.row_count = self.row_count
+        new_col.row_map = self.row_map
+        new_col.pretty_print()
+
+    def intify_col(self, col_num_a):
+        def f(x):
+            return int(x)
+
+        self.unop_col(col_num_a, f)
+
+    def floatify_col(self, col_num_a):
+        def f(x):
+            return float(x)
+
+        self.unop_col(col_num_a, f)
+
+    def stringify_col(self, col_num_a):
+        def f(x):
+            return str(x)
+
+        self.unop_col(col_num_a, f)
+
+    def pow_col(self, col_num_a, n, as_type="floats"):
+        if as_type="ints":
+            def f(x):
+                return int(int(x)**n)
+        else:
+            def f(x):
+                return float(x)**n
+
+        self.unop_col(col_num_a, f)
+
+    def modn_col(self, col_num_a, n):
+        def f(x):
+            return x mod n
+
+        self.unop_col(col_num_a, f)
 
     def binop_cols(self, col_num_a, col_num_b, f):
         """
-        Perform a binary operation f on two columns, and return
+        Perform a binary operation f on two columns, and display
         a DataSheet containing only the modified column. This
         DataSheet will inherit its row_map from its parent.
         """
@@ -112,13 +164,16 @@ class DataSheet(object):
 
 
     # TODO: condense
+    # TODO: consider supporting other column types.
+    #       for now, treat database as a database of string literals
+    #       and convert in and out of this representation as needed.
     def add_cols(self, col_num_a, col_num_b, as_types="strings"):
         if as_types == "ints":
             def f(a,b):
-                return int(a) + int(b)
+                return str(int(a) + int(b))
         elif as_types == "floats":
             def f(a,b):
-                return float(a) + float(b)
+                return str(float(a) + float(b))
         else: # default to strings
             def f(a,b):
                 return str(a) + str(b)
@@ -128,10 +183,10 @@ class DataSheet(object):
     def sub_cols(self, col_num_a, col_num_b, as_types="strings"):
         if as_types == "ints":
             def f(a,b):
-                return int(a) - int(b)
+                return str(int(a) - int(b))
         elif as_types == "floats":
             def f(a,b):
-                return float(a) - float(b)
+                return str(float(a) - float(b))
         else: # default to strings
             def f(a,b):
                 return "TYPE_ERROR"
@@ -141,10 +196,10 @@ class DataSheet(object):
     def mul_cols(self, col_num_a, col_num_b, as_types="strings"):
         if as_types == "ints":
             def f(a,b):
-                return int(a) * int(b)
+                return str(int(a) * int(b))
         elif as_types == "floats":
             def f(a,b):
-                return float(a) * float(b)
+                return str(float(a) * float(b))
         else: # default to strings
             def f(a,b):
                 return "TYPE_ERROR"
@@ -154,10 +209,10 @@ class DataSheet(object):
     def div_cols(self, col_num_a, col_num_b, as_types="strings"):
         if as_types == "ints":
             def f(a,b):
-                return int(a) / int(b)
+                return str(int(a) / int(b))
         elif as_types == "floats":
             def f(a,b):
-                return float(a) / float(b)
+                return str(float(a) / float(b))
         else: # default to strings
             def f(a,b):
                 return "TYPE_ERROR"
