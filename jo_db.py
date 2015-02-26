@@ -1,3 +1,9 @@
+"""
+Auxilary functions
+"""
+
+def identity_map(n):
+    return {i:i for i in range(0,n)}
 
 class DataSheet(object):
     def __init__(self, data_file=None):
@@ -10,12 +16,9 @@ class DataSheet(object):
             data = data_file.read()
             rows = [row for row in data.split('\n') if row.strip() != '']
             self.row_count = len(rows)
+            self.row_map = identity_map(self.row_count)
 
             for i in range(0, self.row_count):
-                # "sorting" the database is equivalent to changing the row_map
-                # int -> int mapping
-                self.row_map[i] = i
-
                 row_fields = rows[i].split(',')
 
                 num_fields_in_row = len(row_fields)
@@ -29,16 +32,13 @@ class DataSheet(object):
                     # want the ith element of the jth column.
                     self.cols[j][i] = row_fields[j]
 
-        else:
-            print "No data in provided file."
-
     def shape(self):
         """
         Return a tuple of ints representing the database's shape.
         """
         return (self.row_count, self.col_count)
 
-    def pretty_print(self, field_width=15, sep='| '):
+    def pretty_print(self, field_width=15, sep='| ', col_subset=None):
         """
         Display the database to a terminal window.
 
@@ -55,6 +55,7 @@ class DataSheet(object):
             Note that we copy field_width to _field_width so we can modify it
             """
             _field_width = field_width
+            field = str(field)
 
             if with_sep:
                 _field_width += (len(sep) - 1)
@@ -92,9 +93,76 @@ class DataSheet(object):
             print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
         print '\n'
 
-    def add_cols(self, col_num_a, col_num_b, treat_as=None):
-        for i in
+    def unop_col(self, col_num_a, f):
         pass
+
+    def binop_cols(self, col_num_a, col_num_b, f):
+        """
+        Perform a binary operation f on two columns, and return
+        a DataSheet containing only the modified column. This
+        DataSheet will inherit its row_map from its parent.
+        """
+        new_col = DataSheet()
+        new_col.cols[0] = {v: f(self.cols[col_num_a][v], self.cols[col_num_b][v])
+                                           for (_,v) in self.row_map.iteritems()}
+        new_col.col_count = 1
+        new_col.row_count = self.row_count
+        new_col.row_map = self.row_map
+        new_col.pretty_print()
+
+
+    # TODO: condense
+    def add_cols(self, col_num_a, col_num_b, as_types="strings"):
+        if as_types == "ints":
+            def f(a,b):
+                return int(a) + int(b)
+        elif as_types == "floats":
+            def f(a,b):
+                return float(a) + float(b)
+        else: # default to strings
+            def f(a,b):
+                return str(a) + str(b)
+
+        self.binop_cols(col_num_a, col_num_b, f)
+
+    def sub_cols(self, col_num_a, col_num_b, as_types="strings"):
+        if as_types == "ints":
+            def f(a,b):
+                return int(a) - int(b)
+        elif as_types == "floats":
+            def f(a,b):
+                return float(a) - float(b)
+        else: # default to strings
+            def f(a,b):
+                return "TYPE_ERROR"
+
+        self.binop_cols(col_num_a, col_num_b, f)
+
+    def mul_cols(self, col_num_a, col_num_b, as_types="strings"):
+        if as_types == "ints":
+            def f(a,b):
+                return int(a) * int(b)
+        elif as_types == "floats":
+            def f(a,b):
+                return float(a) * float(b)
+        else: # default to strings
+            def f(a,b):
+                return "TYPE_ERROR"
+
+        self.binop_cols(col_num_a, col_num_b, f)
+
+    def div_cols(self, col_num_a, col_num_b, as_types="strings"):
+        if as_types == "ints":
+            def f(a,b):
+                return int(a) / int(b)
+        elif as_types == "floats":
+            def f(a,b):
+                return float(a) / float(b)
+        else: # default to strings
+            def f(a,b):
+                return "TYPE_ERROR"
+
+        self.binop_cols(col_num_a, col_num_b, f)
 
     def sort_by_col(self, col):
         # TODO: implement a real sort, and return the sorted index mappings.
