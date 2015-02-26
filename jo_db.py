@@ -33,10 +33,22 @@ class DataSheet(object):
             print "No data in provided file."
 
     def shape(self):
+        """
+        Return a tuple of ints representing the database's shape.
+        """
         return (self.row_count, self.col_count)
 
     def pretty_print(self, field_width=15, sep='| '):
+        """
+        Display the database to a terminal window.
 
+        Optional arguments:
+        field_width - int. corresponds to the number of characters of
+        each field that should be displayed.
+
+        sel - string, specify the separator that sits between columns.
+
+        """
         def fill_to_width(field, with_sep=False):
             """
             Given a field to be displayed, space-pad or truncate it to field_width.
@@ -54,8 +66,6 @@ class DataSheet(object):
         # find with of rendered database endcaps
         cap_width = ((field_width + len(sep)) * self.col_count + 1)
 
-
-
         print "_" * cap_width
 
         for i in range(0, self.row_count):
@@ -63,6 +73,8 @@ class DataSheet(object):
 
             for j in range(0, self.col_count):
 
+                # Handle partially-filled rows. print "no data" in all
+                # unfilled cells.
                 try:
                     row_datum = self.cols[j][self.row_map[i]]
 
@@ -75,13 +87,21 @@ class DataSheet(object):
         print '*' * cap_width
 
         # TODO: add named columns?
+        # Display column names/indices
         for i in range(0, self.col_count):
             print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
         print '\n'
 
     def add_cols(self, col_num_a, col_num_b, treat_as=None):
+        for i in
         pass
 
-    def sort_by_col(col):
-        pass
-        pass # in the column,
+    def sort_by_col(self, col):
+        # TODO: implement a real sort, and return the sorted index mappings.
+        # This implementation uses Python's built-in sort function,
+        # and is also quite slow.
+        items = [self.cols[col][i] for i in range(0, self.row_count)]
+        newnums = [items.index(elt) for elt in sorted(items)]
+
+        for i in range(0, self.row_count):
+            self.row_map[i] = newnums[i]
