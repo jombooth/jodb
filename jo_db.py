@@ -17,6 +17,19 @@ def inv_map(map):
     """
     return {v:k for (k,v) in map.iteritems()}
 
+def quicksort(lst, cmp_func):
+    """
+    Perform quicksort on a list.
+    """
+    if len(lst) > 1:
+        mid = len(lst)/2
+        pivot = lst[mid]
+        left, right = [elt for elt in lst[:mid] + lst[mid+1:] if cmp_func(elt, pivot)], \
+                      [elt for elt in lst[:mid] + lst[mid+1:] if not cmp_func(elt, pivot)]
+        return quicksort(left, cmp_func) + [pivot] + quicksort(right, cmp_func)
+    else:
+        return lst
+
 class DataSheet(object):
     def __init__(self, data_file=None):
         """
@@ -95,8 +108,7 @@ class DataSheet(object):
 
         return new_ds
 
-    # TODO: make field width a const
-    def pretty_print(self, field_width=6, sep='| ', col_subset=None):
+    def pretty_print(self, field_width=12, sep='| ', col_subset=None):
         """
         Display the database to a terminal window.
 
@@ -148,7 +160,10 @@ class DataSheet(object):
         # TODO: add named columns?
         # Display column names/indices
         for i in self.cols.keys():
-            print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
+            if field_width > 11:
+                print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
+            else:
+                print fill_to_width('  ^%s' % str(i), with_sep=True),
         print '\n'
 
     def reduce_col(self, col_num_a, f, init):
@@ -184,7 +199,23 @@ class DataSheet(object):
         """
         return self.sum_col(col_num_a, as_type=as_type) / self.row_count
 
-        # TODO: add median
+    def med_col(self, col_num_a, as_type='floats'):
+        """
+        Sort a column by the comparison defined on the type and grab the middle value.
+        Note: unlike the others here, this is not implemented as an instantiation
+        of a higher-order function.
+        """
+        def compare(a,b):
+            return a < b
+
+        if as_type == 'floats':
+            candidates = [float(x) for x in self.cols[col_num_a].values()]
+        elif as_type == 'ints':
+            candidates = [int(x) for x in self.cols[col_num_a].values()]
+        else:
+            candidates = self.cols[col_num_a].values()
+
+        return quicksort(candidates, compare)[self.row_count/2]
 
     def var_col(self, col_num_a):
         """
@@ -423,22 +454,21 @@ class DataSheet(object):
             else:
                 return b
 
-        # TODO: decide where to put the detupleing
         def compare(a,b):
             return order_flip(a[1] < b[1])
 
-        def quicksort(lst):
-            if len(lst) > 1:
-                mid = len(lst)/2
-                pivot = lst[mid]
-                left, right = [elt for elt in lst[:mid] + lst[mid+1:] if compare(elt, pivot)], \
-                              [elt for elt in lst[:mid] + lst[mid+1:] if not compare(elt, pivot)]
-                return quicksort(left) + [pivot] + quicksort(right)
-            else:
-                return lst
+        # def quicksort(lst, cmp_func):
+        #     if len(lst) > 1:
+        #         mid = len(lst)/2
+        #         pivot = lst[mid]
+        #         left, right = [elt for elt in lst[:mid] + lst[mid+1:] if cmp_func(elt, pivot)], \
+        #                       [elt for elt in lst[:mid] + lst[mid+1:] if not cmp_func(elt, pivot)]
+        #         return quicksort(left) + [pivot] + quicksort(right)
+        #     else:
+        #         return lst
 
         # punchline: all we really want to change is the row_map
-        sorted_items = quicksort(tagged_col.values())
+        sorted_items = quicksort(tagged_col.values(), compare)
 
         # this is precisely where our assumption that every key in row_map picks out
         # exactly one row, and that all the rows are picked out by some key becomes
