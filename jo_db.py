@@ -1,5 +1,5 @@
 """
-Auxilary functions
+Auxiliary functions
 """
 
 def identity_map(n):
@@ -28,6 +28,27 @@ class DataSheet(object):
 
         Note that calling repeatedly on the same file object will yield
         undefined behavior. Make a new file descriptor for each call.
+
+        Fields:
+
+        cols : a dictionary mapping column numbers to their corresponding
+               column dictionaries
+
+        row_map : a dictionary mapping "virtual rows" to physical rows
+                  in memory. Essentially, we never move data that's between
+                  loaded, we just change the order in which rows are accessed
+                  by modifying this mapping.
+
+        row_count : the total number of rows present. Subsetting rows is
+                    not yet supported, so we say that for now every number
+                    in range(0,row_count) is a valid key in row_map.
+
+        col_count : the total number of columns present. Subsetting columns
+                    IS supported, so we say that it is NOT guaranteed that
+                    every member of range(0,col_count) is a valid key in the
+                    cols dictionary. For this reason, only iterate across
+                    cols.keys()!
+
         """
         self.cols = {}
         self.row_map = {}
@@ -136,13 +157,16 @@ class DataSheet(object):
         """
         accum = init
 
-        for i in range(0, self.row_count):
+        for i in self.row_map.keys():
             accum = f(self.cols[col_num_a][self.row_map[i]], accum)
 
         return accum
 
-    # TODO: dress this up a bit.
     def sum_col(self, col_num_a, as_type='floats'):
+        """
+        Sum the values in a column. Note that
+        summing a non-numeric column is undefined behavior.
+        """
         if as_type == "ints":
             def add(a,b):
                 return int(a) + int(b)
@@ -153,9 +177,17 @@ class DataSheet(object):
         return self.reduce_col(col_num_a, add, 0)
 
     def avg_col(self, col_num_a, as_type='floats'):
+        """
+        Average the values in a column. Note that
+        averaging a non-numeric column is undefined behavior.
+        """
         return self.sum_col(col_num_a, as_type=as_type) / self.row_count
 
     def var_col(self, col_num_a):
+        """
+        Compute the variance of a column. Note that finding the
+        variance of a non-numeric column is undefined behavior.
+        """
         mean = self.avg_col(col_num_a, as_type='floats')
 
         def var_f(a,b):
@@ -163,8 +195,11 @@ class DataSheet(object):
 
         return self.reduce_col(col_num_a, var_f, 0) / self.row_count
 
-    # TODO: potentially wrap min and max for type reasons
     def min_col(self, col_num_a, as_type='floats'):
+        """
+        Compute the minimum of a column. Note that finding the
+        minimum of a non-numeric column is undefined behavior.
+        """
         def numeric_min(a,b):
             return min(float(a), float(b))
 
@@ -174,6 +209,10 @@ class DataSheet(object):
             return self.reduce_col(col_num_a, numeric_min, float('inf'))
 
     def max_col(self, col_num_a, as_type='floats'):
+        """
+        Compute the maximum of a column. Note that finding the
+        maximum of a non-numeric column is undefined behavior.
+        """
         def numeric_max(a,b):
             return max(float(a), float(b))
 
@@ -185,7 +224,7 @@ class DataSheet(object):
     def map_col(self, col_num_a, f):
         """
         Perform a unary operation f on one column, and display
-        a DataSheet containing only the modified column. This
+        a DataSheet containing only the mapped column. This
         DataSheet will inherit its row_map from its parent.
         """
         new_col = DataSheet()
@@ -197,24 +236,43 @@ class DataSheet(object):
         new_col.pretty_print()
 
     def intify_col(self, col_num_a):
+        """
+        Intify all the numbers in a column. Note that intifying
+        a non-numeric column is undefined behavior.
+        """
         def f(x):
             return int(x)
 
         self.map_col(col_num_a, f)
 
     def floatify_col(self, col_num_a):
+        """
+        Floatify all the numbers in a column. Note that floatifying
+        a non-numeric column is undefined behavior.
+        """
         def f(x):
             return float(x)
 
         self.map_col(col_num_a, f)
 
     def stringify_col(self, col_num_a):
+        """
+        Stringify all the members of a column. Since for now the
+        values in a column are stored as strings anyway, this is
+        perhaps not the most useful function.
+        """
         def f(x):
             return str(x)
 
         self.map_col(col_num_a, f)
 
     def pow_col(self, col_num_a, n, as_type='floats'):
+        """
+        Raise all the numbers in a column to an arbitrary power
+        n, and specify the desired types in 'as_type'.
+
+        pow_col'ing a non-numeric column is undefined behavior.
+        """
         if as_type=="ints":
             def f(x):
                 return int(int(x)**n)
@@ -225,6 +283,12 @@ class DataSheet(object):
         self.map_col(col_num_a, f)
 
     def modn_col(self, col_num_a, n, as_type='ints'):
+        """
+        Compute the modulus of all the numbers in a column wrt an arbitrary value
+        n, and specify the desired types in 'as_type'.
+
+        modn_col'ing a non-numeric column is undefined behavior.
+        """
         if as_type == 'floats':
             def f(x):
                 return float(x) % n
@@ -248,12 +312,12 @@ class DataSheet(object):
         new_col.row_map = self.row_map
         new_col.pretty_print()
 
-
-    # TODO: condense
-    # TODO: consider supporting other column types.
-    #       for now, treat database as a database of string literals
-    #       and convert in and out of this representation as needed.
     def add_cols(self, col_num_a, col_num_b, as_types="strings"):
+        """
+        Add the values of two columns to produce a new column.
+
+        Works fine on ints, floats, and strings; strings by default.
+        """
         if as_types == "ints":
             def f(a,b):
                 return str(int(a) + int(b))
@@ -267,6 +331,11 @@ class DataSheet(object):
         self.binop_cols(col_num_a, col_num_b, f)
 
     def sub_cols(self, col_num_a, col_num_b, as_types="strings"):
+        """
+        Subtract the values of two columns to produce a new column.
+
+        Defined on ints and floats, but not strings.
+        """
         if as_types == "ints":
             def f(a,b):
                 return str(int(a) - int(b))
@@ -280,6 +349,11 @@ class DataSheet(object):
         self.binop_cols(col_num_a, col_num_b, f)
 
     def mul_cols(self, col_num_a, col_num_b, as_types="strings"):
+        """
+        Multiply the values of two columns to produce a new column.
+
+        Defined on ints and floats, but not strings.
+        """
         if as_types == "ints":
             def f(a,b):
                 return str(int(a) * int(b))
@@ -293,6 +367,11 @@ class DataSheet(object):
         self.binop_cols(col_num_a, col_num_b, f)
 
     def div_cols(self, col_num_a, col_num_b, as_types="strings"):
+        """
+        Divide the values of two columns to produce a new column.
+
+        Defined on ints and floats, but not strings.
+        """
         if as_types == "ints":
             def f(a,b):
                 return str(int(a) / int(b))
@@ -306,12 +385,33 @@ class DataSheet(object):
         self.binop_cols(col_num_a, col_num_b, f)
 
     def sort_by_col(self, col, compare_as="strings", order="asc", sort_type="quicksort"):
+        """
+        Provide the index of a column on which to sort the database, and this function will
+        generate a new row_map essentially virtualizing the order of the rows to match the
+        order of the column in question.
+
+        Params:
+
+        compare_as : specify the type of the comparison. by default, sort_by_col will
+                     order the fields as strings, lexicographically.
+
+        order : specify the order for the sort. 'asc' for ascending, 'desc' for descending
+                (in homage to SQL syntax, I guess.)
+
+        sort_type : for now, only quicksort is implemented but other sorts could be applied
+                    here easily.
+        """
+
         # Create a tagged copy of the column such that the new column's map
         # is necessarily a bijection.
-
-        # (remap the column so that each value is stored with its key.)
-        # possibly slow, profile this later
-        tagged_col = {k:(k,v) for (k,v) in self.cols[col].iteritems()}
+        # remap the column so that each value is stored with its key.
+        if compare_as == "floats":
+            tagged_col = {k:(k,float(v)) for (k,v) in self.cols[col].iteritems()}
+        elif compare_as == "ints":
+            tagged_col = {k:(k,int(v)) for (k,v) in self.cols[col].iteritems()}
+        else:
+            tagged_col = {k:(k,v) for (k,v) in self.cols[col].iteritems()}
+        # note that the purpose of the above was to ensure invertibility
         inv_column_mapping = inv_map(tagged_col)
 
         def order_flip(b):
@@ -321,15 +421,8 @@ class DataSheet(object):
                 return b
 
         # TODO: decide where to put the detupleing
-        if compare_as == "ints":
-            def compare(a,b):
-                return order_flip(int(a[1]) < int(b[1]))
-        elif compare_as == "floats":
-            def compare(a,b):
-                return order_flip(float(a[1]) < float(b[1]))
-        else:
-            def compare(a,b):
-                return order_flip(str(a[1]) < str(b[1]))
+        def compare(a,b):
+            return order_flip(a[1] < b[1])
 
         def quicksort(lst):
             if len(lst) > 1:
@@ -344,4 +437,7 @@ class DataSheet(object):
         # punchline: all we really want to change is the row_map
         sorted_items = quicksort(tagged_col.values())
 
+        # this is precisely where our assumption that every key in row_map picks out
+        # exactly one row, and that all the rows are picked out by some key becomes
+        # important.
         self.row_map = {i:inv_column_mapping[sorted_items[i]] for i in range(0, self.row_count)}

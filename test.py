@@ -13,8 +13,13 @@ print '\n   Shape of datasheet:', ds.shape()
 ds.pretty_print()
 
 for i in range(0, ds.col_count):
-    print 'Sorted datasheet by column %d:' % i
+    print 'Sorted datasheet, ascending, by column %d:' % i
     ds.sort_by_col(i)
+    ds.pretty_print()
+
+for i in range(0, ds.col_count):
+    print 'Sorted datasheet, descending, by column %d:' % i
+    ds.sort_by_col(i, order="desc")
     ds.pretty_print()
 
 print '         ####################################\n'
