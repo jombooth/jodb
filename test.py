@@ -6,7 +6,7 @@ A test suite for the jo_db datasheet object.
 
 print '\n\nTESTING DATASHEET LOAD.\n\n'
 
-fd = open('test2.csv', 'r')
+fd = open('test.csv', 'r')
 ds = jo_db.DataSheet(fd)
 
 print '\n   Shape of datasheet:', ds.shape()

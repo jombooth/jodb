@@ -89,7 +89,7 @@ HELP =  """
             sort phonebook by 6 as strings asc
 
             note that <type> specifies the type of comparison
-            e.g. strings is lexicographical, numeric comparisons are <
+            e.g. string comparisons are lexicographical, numeric comparisons are <
         """
 
 KEYWORDS = ['load', 'sort', 'print', 'shape', 'as', 'int', 'float', 'str', \
