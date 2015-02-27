@@ -95,7 +95,8 @@ class DataSheet(object):
 
         return new_ds
 
-    def pretty_print(self, field_width=15, sep='| ', col_subset=None):
+    # TODO: make field width a const
+    def pretty_print(self, field_width=6, sep='| ', col_subset=None):
         """
         Display the database to a terminal window.
 
@@ -182,6 +183,8 @@ class DataSheet(object):
         averaging a non-numeric column is undefined behavior.
         """
         return self.sum_col(col_num_a, as_type=as_type) / self.row_count
+
+        # TODO: add median
 
     def var_col(self, col_num_a):
         """
