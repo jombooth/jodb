@@ -93,7 +93,8 @@ HELP =  """
         """
 
 KEYWORDS = ['load', 'sort', 'print', 'shape', 'as', 'int', 'float', 'str', \
-            'variance', 'let', 'avg', 'mod', 'filedump', 'subset' ]
+            'variance', 'let', 'avg', 'mod', 'filedump', 'subset', 'var', \
+            'times', 'plus', 'mean', 'average', 'med', 'median' ]
 
 TYPES = ['ints', 'strings', 'floats']
 
@@ -166,14 +167,14 @@ while 1:
 
             # OPERATORS ON TWO COLUMNS
 
-            elif ipt[3] == 'add':
+            elif ipt[3] == 'add' or ipt[3] == 'plus':
                 assert ipt[7] == 'as'
                 assert ipt[8] in TYPES
                 typename = ipt[8]
                 if ipt[4] in namespace:
                     namespace[to_assign] = namespace[ipt[4]].add_cols(int(ipt[5]), int(ipt[6]), as_types=typename)
 
-            elif ipt[3] == 'sub':
+            elif ipt[3] == 'sub' or ipt[3] == 'minus':
                 assert ipt[7] == 'as'
                 assert ipt[8] in TYPES
                 typename = ipt[8]
@@ -187,7 +188,7 @@ while 1:
                 if ipt[4] in namespace:
                     namespace[to_assign] = namespace[ipt[4]].div_cols(int(ipt[5]), int(ipt[6]), as_types=typename)
 
-            elif ipt[3] == 'mul':
+            elif ipt[3] == 'mul' or ipt[3] == 'times':
                 assert ipt[7] == 'as'
                 assert ipt[8] in TYPES
                 typename = ipt[8]
@@ -232,7 +233,7 @@ while 1:
 
         # REDUCTION (single-output) OPERATORS
 
-        elif ipt[0] == 'var':
+        elif ipt[0] == 'var' or ipt[0] == 'variance':
             assert ipt[2] == 'in'
             if ipt[3] in namespace:
                 print namespace[ipt[3]].var_col(int(ipt[1]))
@@ -257,7 +258,7 @@ while 1:
             if ipt[3] in namespace:
                 print namespace[ipt[3]].max_col(int(ipt[1]), as_type=typename)
 
-        elif ipt[0] == 'avg':
+        elif ipt[0] == 'avg' or ipt[0] == 'mean' or ipt[0] == 'average':
             assert ipt[2] == 'in'
             assert ipt[4] == 'as'
             assert ipt[5] in TYPES
@@ -275,7 +276,7 @@ while 1:
             if ipt[3] in namespace:
                 print namespace[ipt[3]].sum_col(int(ipt[1]), as_type=typename)
 
-        elif ipt[0] == 'med':
+        elif ipt[0] == 'med' or ipt[0] == 'median':
             assert ipt[2] == 'in'
             assert ipt[4] == 'as'
             assert ipt[5] in TYPES
