@@ -109,10 +109,45 @@ class DataSheet(object):
         return accum
 
     # TODO: dress this up a bit.
-    def sum_col(self, col_num_a):
-        def add(a,b):
-            return int(a) + int(b)
+    def sum_col(self, col_num_a, as_type='floats'):
+        if as_type == "ints":
+            def add(a,b):
+                return int(a) + int(b)
+        else:
+            def add(a,b):
+                return float(a) + float(b)
+
         return self.reduce_col(col_num_a, add, 0)
+
+    def avg_col(self, col_num_a, as_type='floats'):
+        return self.sum_col(col_num_a, as_type=as_type) / self.row_count
+
+    def var_col(self, col_num_a):
+        mean = self.avg_col(col_num_a, as_type='floats')
+
+        def var_f(a,b):
+            return b + ((mean - float(a)) ** 2)
+
+        return self.reduce_col(col_num_a, var_f, 0) / self.row_count
+
+    # TODO: potentially wrap min and max for type reasons
+    def min_col(self, col_num_a, as_type='floats'):
+        def numeric_min(a,b):
+            return min(float(a), float(b))
+
+        if as_type == 'ints':
+            return int(self.reduce_col(col_num_a, numeric_min, float('inf')))
+        else:
+            return self.reduce_col(col_num_a, numeric_min, float('inf'))
+
+    def max_col(self, col_num_a, as_type='floats'):
+        def numeric_max(a,b):
+            return max(float(a), float(b))
+
+        if as_type == 'ints':
+            return int(self.reduce_col(col_num_a, numeric_max, float('-inf')))
+        else:
+            return self.reduce_col(col_num_a, numeric_max, float('-inf'))
 
     def unop_col(self, col_num_a, f):
         """
@@ -146,7 +181,7 @@ class DataSheet(object):
 
         self.unop_col(col_num_a, f)
 
-    def pow_col(self, col_num_a, n, as_type="floats"):
+    def pow_col(self, col_num_a, n, as_type='floats'):
         if as_type=="ints":
             def f(x):
                 return int(int(x)**n)
@@ -156,9 +191,13 @@ class DataSheet(object):
 
         self.unop_col(col_num_a, f)
 
-    def modn_col(self, col_num_a, n):
-        def f(x):
-            return x % n
+    def modn_col(self, col_num_a, n, as_type='ints'):
+        if as_type == 'floats':
+            def f(x):
+                return float(x) % n
+        else:
+            def f(x):
+                return int(x) % n
 
         self.unop_col(col_num_a, f)
 
