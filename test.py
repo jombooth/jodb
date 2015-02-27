@@ -27,19 +27,19 @@ print '         ####################################\n'
 print '\n\nTESTING COLUMN BINOPS.\n\n'
 
 print '\n   Adding columns 0 and 1'
-ds.add_cols(0,1,as_types='ints')
+ds.add_cols(0,1,as_types='ints').pretty_print()
 
 print '\n   Subtracting columns 0 and 1'
-ds.sub_cols(0,1,as_types='ints')
+ds.sub_cols(0,1,as_types='ints').pretty_print()
 
 print '\n   Multiplying columns 0 and 1'
-ds.mul_cols(0,1,as_types='ints')
+ds.mul_cols(0,1,as_types='ints').pretty_print()
 
 print '\n   Dividing columns 0 and 1 as floats'
-ds.div_cols(0,1,as_types='floats')
+ds.div_cols(0,1,as_types='floats').pretty_print()
 
 print '\n   Dividing columns 0 and 1 as strings (nonsense)'
-ds.div_cols(0,1,as_types='strings')
+ds.div_cols(0,1,as_types='strings').pretty_print()
 
 print '         ####################################\n'
 
@@ -52,41 +52,40 @@ print '\n\nTESTING COLUMN UNOPS.\n\n'
 
 for i in range(0, ds.col_count):
     print 'Intified column %d of datasheet:' % i
-    ds.intify_col(i)
+    ds.intify_col(i).pretty_print()
 
 for i in range(0, ds.col_count):
     print 'Floatified column %d of datasheet:' % i
-    ds.floatify_col(i)
+    ds.floatify_col(i).pretty_print()
 
 for i in range(0, ds.col_count):
     print 'Squares of column %d of datasheet:' % i
-    ds.pow_col(i, 2, as_type='floats')
+    ds.pow_col(i, 2, as_type='floats').pretty_print()
 
 for i in range(0, ds.col_count):
     print 'Mod 2 of column %d of datasheet:' % i
-    ds.modn_col(i, 2, as_type='ints')
+    ds.modn_col(i, 2, as_type='ints').pretty_print()
 
 print '         ####################################\n'
 
 print '\n\nTESTING COLUMN REDUCE OPERATIONS\n\n'
 
 for i in range(0, ds.col_count):
-    print 'Summed column %d of datasheet:' % i
-    print ds.sum_col(i)
+    print 'Summed column %d of datasheet: %.1f' % (i, ds.sum_col(i))
 
 for i in range(0, ds.col_count):
-    print 'Variance of column %d of datasheet:' % i
-    print ds.var_col(i)
+    print 'Variance of column %d of datasheet: %.1f' % (i, ds.var_col(i))
 
 for i in range(0, ds.col_count):
-    print 'Max of column %d of datasheet:' % i
-    print ds.max_col(i, as_type='ints')
+    print 'Max of column %d of datasheet: %d' % (i, ds.max_col(i, as_type='ints'))
 
 for i in range(0, ds.col_count):
-    print 'Min of column %d of datasheet:' % i
-    print ds.min_col(i, as_type='ints')
+    print 'Min of column %d of datasheet: %d' % (i, ds.min_col(i, as_type='ints'))
 
-print '         ####################################\n'
+for i in range(0, ds.col_count):
+    print 'Median of column %d of datasheet: %d' % (i, ds.med_col(i, as_type='ints'))
+
+print '\n         ####################################\n'
 
 print '\n\nTESTING SUBSET OPERATION\n\n'
 
