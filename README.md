@@ -19,7 +19,7 @@ test.py              : Runs a battery of small tests on test.csv, and displays t
 
                        USAGE: python test.py
 
-gen_100k_line_csv.py : Constructs a CSV file with 25 columns and 1000000 rows of random integers.
+gen_100k_line_csv.py : Constructs a CSV file with 25 columns and 100000 rows of random integers.
                        Can be tweaked as needed to further profile the datasheet system's performance.
 
                        USAGE: python gen_100k_line_csv.py 
