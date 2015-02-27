@@ -3,13 +3,32 @@ Auxilary functions
 """
 
 def identity_map(n):
+    """
+    Return a dictionary initialized to be the identity
+    mapping, defined on all integers 0 <= i < n
+    """
     return {i:i for i in range(0,n)}
 
 def inv_map(map):
+    """
+    Return the inverse of a 1:1 correspondence.
+    DO NOT INVERT A DICTIONARY THAT IS NOT SURELY
+    BOTH AN INJECTION AND A SURJECTION.
+    """
     return {v:k for (k,v) in map.iteritems()}
 
 class DataSheet(object):
     def __init__(self, data_file=None):
+        """
+        Construct a new DataSheet object, with content matching that
+        of the file pointed to by the file descriptor data_file.
+
+        If no file descriptor is provided, output an empty DataSheet
+        object.
+
+        Note that calling repeatedly on the same file object will yield
+        undefined behavior. Make a new file descriptor for each call.
+        """
         self.cols = {}
         self.row_map = {}
         self.row_count = 0
@@ -40,6 +59,20 @@ class DataSheet(object):
         Return a tuple of ints representing the database's shape.
         """
         return (self.row_count, self.col_count)
+
+    def subset(self, column_list):
+        """
+        Given a list of columns in self that are desired in a new dataframe,
+        return a new dataframe having all and only those columns in it.
+        """
+        new_ds = DataSheet()
+
+        new_ds.cols = {k:self.cols[k] for k in column_list if k >= 0 and k < self.col_count}
+        new_ds.row_map = self.row_map
+        new_ds.row_count = self.row_count
+        new_ds.col_count = len(column_list)
+
+        return new_ds
 
     def pretty_print(self, field_width=15, sep='| ', col_subset=None):
         """
@@ -72,10 +105,10 @@ class DataSheet(object):
 
         print "_" * cap_width
 
-        for i in range(0, self.row_count):
+        for i in self.row_map.keys():
             row_buf = sep
 
-            for j in range(0, self.col_count):
+            for j in self.cols.keys():
 
                 # Handle partially-filled rows. print "no data" in all
                 # unfilled cells.
@@ -92,7 +125,7 @@ class DataSheet(object):
 
         # TODO: add named columns?
         # Display column names/indices
-        for i in range(0, self.col_count):
+        for i in self.cols.keys():
             print fill_to_width('  ^ Column %s' % str(i), with_sep=True),
         print '\n'
 
@@ -149,7 +182,7 @@ class DataSheet(object):
         else:
             return self.reduce_col(col_num_a, numeric_max, float('-inf'))
 
-    def unop_col(self, col_num_a, f):
+    def map_col(self, col_num_a, f):
         """
         Perform a unary operation f on one column, and display
         a DataSheet containing only the modified column. This
@@ -167,19 +200,19 @@ class DataSheet(object):
         def f(x):
             return int(x)
 
-        self.unop_col(col_num_a, f)
+        self.map_col(col_num_a, f)
 
     def floatify_col(self, col_num_a):
         def f(x):
             return float(x)
 
-        self.unop_col(col_num_a, f)
+        self.map_col(col_num_a, f)
 
     def stringify_col(self, col_num_a):
         def f(x):
             return str(x)
 
-        self.unop_col(col_num_a, f)
+        self.map_col(col_num_a, f)
 
     def pow_col(self, col_num_a, n, as_type='floats'):
         if as_type=="ints":
@@ -189,7 +222,7 @@ class DataSheet(object):
             def f(x):
                 return float(x)**n
 
-        self.unop_col(col_num_a, f)
+        self.map_col(col_num_a, f)
 
     def modn_col(self, col_num_a, n, as_type='ints'):
         if as_type == 'floats':
@@ -199,7 +232,7 @@ class DataSheet(object):
             def f(x):
                 return int(x) % n
 
-        self.unop_col(col_num_a, f)
+        self.map_col(col_num_a, f)
 
     def binop_cols(self, col_num_a, col_num_b, f):
         """

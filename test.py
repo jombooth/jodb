@@ -4,6 +4,8 @@ import jo_db
 A test suite for the jo_db datasheet object.
 """
 
+print '\n\nTESTING DATASHEET LOAD.\n\n'
+
 fd = open('test2.csv', 'r')
 ds = jo_db.DataSheet(fd)
 
@@ -14,7 +16,8 @@ for i in range(0, ds.col_count):
     print 'Sorted datasheet by column %d:' % i
     ds.sort_by_col(i)
     ds.pretty_print()
-    print '         ####################################\n'
+
+print '         ####################################\n'
 
 print '\n\nTESTING COLUMN BINOPS.\n\n'
 
@@ -33,33 +36,32 @@ ds.div_cols(0,1,as_types='floats')
 print '\n   Dividing columns 0 and 1 as strings (nonsense)'
 ds.div_cols(0,1,as_types='strings')
 
+print '         ####################################\n'
+
 print '\n\nTESTING COLUMN UNOPS.\n\n'
 
-# Tested, but this function doesn't do much, so commented out for brevity.
+# # Tested, but this function doesn't do much, so commented out for brevity.
 # for i in range(0, ds.col_count):
 #     print 'Stringified column %d of datasheet:' % i
 #     ds.stringify_col(i)
-#     print '         ####################################\n'
 
 for i in range(0, ds.col_count):
     print 'Intified column %d of datasheet:' % i
     ds.intify_col(i)
-    print '         ####################################\n'
 
 for i in range(0, ds.col_count):
     print 'Floatified column %d of datasheet:' % i
     ds.floatify_col(i)
-    print '         ####################################\n'
 
 for i in range(0, ds.col_count):
     print 'Squares of column %d of datasheet:' % i
     ds.pow_col(i, 2, as_type='floats')
-    print '         ####################################\n'
 
 for i in range(0, ds.col_count):
     print 'Mod 2 of column %d of datasheet:' % i
     ds.modn_col(i, 2, as_type='ints')
-    print '         ####################################\n'
+
+print '         ####################################\n'
 
 print '\n\nTESTING COLUMN REDUCE OPERATIONS\n\n'
 
@@ -78,3 +80,21 @@ for i in range(0, ds.col_count):
 for i in range(0, ds.col_count):
     print 'Min of column %d of datasheet:' % i
     print ds.min_col(i, as_type='ints')
+
+print '         ####################################\n'
+
+print '\n\nTESTING SUBSET OPERATION\n\n'
+
+print 'Columns 0,1,3,4 from original dataframe:'
+ds.subset([0,1,3,4]).pretty_print()
+
+print 'Columns 0 and 2 from original dataframe:'
+ds.subset([0,2]).pretty_print()
+
+print 'Column 0 from original dataframe:'
+ds.subset([0]).pretty_print()
+
+print 'No columns from original dataframe:'
+ds.subset([]).pretty_print()
+
+print '         ####################################\n'
