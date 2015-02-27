@@ -233,7 +233,7 @@ class DataSheet(object):
         new_col.col_count = 1
         new_col.row_count = self.row_count
         new_col.row_map = self.row_map
-        new_col.pretty_print()
+        return new_col
 
     def intify_col(self, col_num_a):
         """
@@ -243,7 +243,7 @@ class DataSheet(object):
         def f(x):
             return int(x)
 
-        self.map_col(col_num_a, f)
+        return self.map_col(col_num_a, f)
 
     def floatify_col(self, col_num_a):
         """
@@ -253,7 +253,7 @@ class DataSheet(object):
         def f(x):
             return float(x)
 
-        self.map_col(col_num_a, f)
+        return self.map_col(col_num_a, f)
 
     def stringify_col(self, col_num_a):
         """
@@ -264,7 +264,7 @@ class DataSheet(object):
         def f(x):
             return str(x)
 
-        self.map_col(col_num_a, f)
+        return self.map_col(col_num_a, f)
 
     def pow_col(self, col_num_a, n, as_type='floats'):
         """
@@ -280,7 +280,7 @@ class DataSheet(object):
             def f(x):
                 return float(x)**n
 
-        self.map_col(col_num_a, f)
+        return self.map_col(col_num_a, f)
 
     def modn_col(self, col_num_a, n, as_type='ints'):
         """
@@ -296,7 +296,7 @@ class DataSheet(object):
             def f(x):
                 return int(x) % n
 
-        self.map_col(col_num_a, f)
+        return self.map_col(col_num_a, f)
 
     def binop_cols(self, col_num_a, col_num_b, f):
         """
@@ -310,7 +310,7 @@ class DataSheet(object):
         new_col.col_count = 1
         new_col.row_count = self.row_count
         new_col.row_map = self.row_map
-        new_col.pretty_print()
+        return new_col
 
     def add_cols(self, col_num_a, col_num_b, as_types="strings"):
         """
@@ -328,7 +328,7 @@ class DataSheet(object):
             def f(a,b):
                 return str(a) + str(b)
 
-        self.binop_cols(col_num_a, col_num_b, f)
+        return self.binop_cols(col_num_a, col_num_b, f)
 
     def sub_cols(self, col_num_a, col_num_b, as_types="strings"):
         """
@@ -346,7 +346,7 @@ class DataSheet(object):
             def f(a,b):
                 return "TYPE_ERROR"
 
-        self.binop_cols(col_num_a, col_num_b, f)
+        return self.binop_cols(col_num_a, col_num_b, f)
 
     def mul_cols(self, col_num_a, col_num_b, as_types="strings"):
         """
@@ -364,7 +364,7 @@ class DataSheet(object):
             def f(a,b):
                 return "TYPE_ERROR"
 
-        self.binop_cols(col_num_a, col_num_b, f)
+        return self.binop_cols(col_num_a, col_num_b, f)
 
     def div_cols(self, col_num_a, col_num_b, as_types="strings"):
         """
@@ -382,7 +382,7 @@ class DataSheet(object):
             def f(a,b):
                 return "TYPE_ERROR"
 
-        self.binop_cols(col_num_a, col_num_b, f)
+        return self.binop_cols(col_num_a, col_num_b, f)
 
     def sort_by_col(self, col, compare_as="strings", order="asc", sort_type="quicksort"):
         """
