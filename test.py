@@ -10,8 +10,8 @@ ds = jo_db.DataSheet(fd)
 print '\n   Shape of datasheet:', ds.shape()
 ds.pretty_print()
 
-for i in range(0, ds.row_count):
-    print 'Sorted datasheet by row %d:' % i
+for i in range(0, ds.col_count):
+    print 'Sorted datasheet by column %d:' % i
     ds.sort_by_col(i)
     ds.pretty_print()
     print '         ####################################\n'
@@ -30,3 +30,9 @@ ds.div_cols(0,1,as_types='floats')
 
 print '\n   Dividing columns 0 and 1 as strings (nonsense)'
 ds.div_cols(0,1,as_types='strings')
+
+print '         ####################################\n'
+
+for i in range(0, ds.col_count):
+    print 'Summed row %d of datasheet:' % i
+    print ds.sum_col(i)

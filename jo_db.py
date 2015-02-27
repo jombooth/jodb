@@ -5,6 +5,9 @@ Auxilary functions
 def identity_map(n):
     return {i:i for i in range(0,n)}
 
+def inv_map(map):
+    return {v:k for (k,v) in map.iteritems()}
+
 class DataSheet(object):
     def __init__(self, data_file=None):
         self.cols = {}
@@ -96,9 +99,20 @@ class DataSheet(object):
     def reduce_col(self, col_num_a, f, init):
         """
         let a0, a1, ... , an
-        be the elements of col_num_a. Then return (f an ... (f a2 (f a1 init)) ... )
+        be the elements of col_num_a. Then return (f an ... (f a1 (f a0 init)) ... )
         """
-        pass
+        accum = init
+
+        for i in range(0, self.row_count):
+            accum = f(self.cols[col_num_a][self.row_map[i]], accum)
+
+        return accum
+
+    # TODO: dress this up a bit.
+    def sum_col(self, col_num_a):
+        def add(a,b):
+            return int(a) + int(b)
+        return self.reduce_col(col_num_a, add, 0)
 
     def unop_col(self, col_num_a, f):
         """
@@ -133,7 +147,7 @@ class DataSheet(object):
         self.unop_col(col_num_a, f)
 
     def pow_col(self, col_num_a, n, as_type="floats"):
-        if as_type="ints":
+        if as_type=="ints":
             def f(x):
                 return int(int(x)**n)
         else:
@@ -144,7 +158,7 @@ class DataSheet(object):
 
     def modn_col(self, col_num_a, n):
         def f(x):
-            return x mod n
+            return x % n
 
         self.unop_col(col_num_a, f)
 
@@ -219,12 +233,43 @@ class DataSheet(object):
 
         self.binop_cols(col_num_a, col_num_b, f)
 
-    def sort_by_col(self, col):
-        # TODO: implement a real sort, and return the sorted index mappings.
-        # This implementation uses Python's built-in sort function,
-        # and is also quite slow.
-        items = [self.cols[col][i] for i in range(0, self.row_count)]
-        newnums = [items.index(elt) for elt in sorted(items)]
+    def sort_by_col(self, col, compare_as="strings", order="asc", sort_type="quicksort"):
+        # Create a tagged copy of the column such that the new column's map
+        # is necessarily a bijection.
 
-        for i in range(0, self.row_count):
-            self.row_map[i] = newnums[i]
+        # (remap the column so that each value is stored with its key.)
+        # possibly slow, profile this later
+        tagged_col = {k:(k,v) for (k,v) in self.cols[col].iteritems()}
+        inv_column_mapping = inv_map(tagged_col)
+
+        def order_flip(b):
+            if order=="desc":
+                return not b
+            else:
+                return b
+
+        # TODO: decide where to put the detupleing
+        if compare_as == "ints":
+            def compare(a,b):
+                return order_flip(int(a[1]) < int(b[1]))
+        elif compare_as == "floats":
+            def compare(a,b):
+                return order_flip(float(a[1]) < float(b[1]))
+        else:
+            def compare(a,b):
+                return order_flip(str(a[1]) < str(b[1]))
+
+        def quicksort(lst):
+            if len(lst) > 1:
+                mid = len(lst)/2
+                pivot = lst[mid]
+                left, right = [elt for elt in lst[:mid] + lst[mid+1:] if compare(elt, pivot)], \
+                              [elt for elt in lst[:mid] + lst[mid+1:] if not compare(elt, pivot)]
+                return quicksort(left) + [pivot] + quicksort(right)
+            else:
+                return lst
+
+        # punchline: all we really want to change is the row_map
+        sorted_items = quicksort(tagged_col.values())
+
+        self.row_map = {i:inv_column_mapping[sorted_items[i]] for i in range(0, self.row_count)}
