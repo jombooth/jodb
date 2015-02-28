@@ -3,8 +3,6 @@ import jo_db, time, os
 def gets():
     return raw_input("> ")
 
-# TODO: implement timer, implement filedumper
-
 HELP =  """
         USAGE:
 
@@ -16,8 +14,8 @@ HELP =  """
             pretty_print whatever is stored in name
         3)  fieldwidth <number>
             set the pretty_print display field width to <number> characters
-        4)  filedump <name> <outputname>
-            pretty_print whatever is stored in name to outputname.txt
+        4)  filedump <name> as <outputname>
+            pretty_print whatever is stored in name to outputname.csv
         5)  shape <name>
             print the shape of the dataframe stored in name.
             can also be used to check whether a dataframe was loaded
@@ -108,7 +106,7 @@ while 1:
             print "ELAPSED TIME: %f seconds." % (time.time() - start)
 
         ipt = filter(None, gets().split(' '))
-        # print ipt
+        print ipt
 
         start = time.time()
 
@@ -143,7 +141,9 @@ while 1:
                 fieldwidth = int(ipt[1])
 
         elif ipt[0] == 'filedump':
-            pass
+            if ipt[1] in namespace:
+                assert ipt[2] == 'as'
+                namespace[ipt[1]].dump_to_csv(ipt[3])
 
         elif ipt[0] == 'shape':
             if len(ipt) == 2:
@@ -239,7 +239,6 @@ while 1:
                 print namespace[ipt[3]].var_col(int(ipt[1]))
 
         # TYPED REDUCTION (single-output) OPERATORS
-        # TODO: maybe don't insist on type specification?
         elif ipt[0] == 'min':
             assert ipt[2] == 'in'
             assert ipt[4] == 'as'

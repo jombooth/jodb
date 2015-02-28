@@ -36,6 +36,8 @@ class DataSheet(object):
         Construct a new DataSheet object, with content matching that
         of the file pointed to by the file descriptor data_file.
 
+        The csv file is assumed to have *NO HEADER ROW*.
+
         If no file descriptor is provided, output an empty DataSheet
         object.
 
@@ -87,6 +89,24 @@ class DataSheet(object):
                         self.cols[j] = {}
                     # want the ith element of the jth column.
                     self.cols[j][i] = row_fields[j]
+
+    def dump_to_csv(self, filename):
+        """
+        Print a dataframe to CSV with the rows in the order
+        specified by the row_map.
+        """
+        fd = open(filename + '.csv', 'w')
+
+        for i in range(0, self.row_count):
+            for col in sorted(self.cols.keys()):
+                fd.write(str(self.cols[col][self.row_map[i]]))
+                if col < max(self.cols.keys()):
+                    fd.write(',')
+                else:
+                    fd.write('\n')
+
+        fd.close()
+
 
     def shape(self):
         """
@@ -157,7 +177,6 @@ class DataSheet(object):
 
         print '*' * cap_width
 
-        # TODO: add named columns?
         # Display column names/indices
         for i in self.cols.keys():
             if field_width > 11:

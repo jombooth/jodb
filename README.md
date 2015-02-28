@@ -22,7 +22,7 @@ test.py              : Runs a battery of small tests on test.csv, and displays t
 gen_100k_line_csv.py : Constructs a CSV file with 25 columns and 100000 rows of random integers.
                        Can be tweaked as needed to further profile the datasheet system's performance.
 
-                       USAGE: python gen_100k_line_csv.py 
+                       USAGE: python gen_100k_line_csv.py
                        and note that it outputs a file called 'big_table.csv'
 
 test_big.py          : Loads big_table.csv and profiles the performance of repeatedly sorting the table
@@ -41,8 +41,8 @@ The HELP string from interpreter.py is reproduced below:
             pretty_print whatever is stored in name
         3)  fieldwidth <number>
             set the pretty_print display field width to <number> characters
-        4)  filedump <name> <outputname>
-            pretty_print whatever is stored in name to outputname.txt
+        4)  filedump <name> as <outputname>
+            pretty_print whatever is stored in name to outputname.csv
         5)  shape <name>
             print the shape of the dataframe stored in name.
             can also be used to check whether a dataframe was loaded
@@ -115,6 +115,3 @@ The HELP string from interpreter.py is reproduced below:
 
             note that <type> specifies the type of comparison
             e.g. string comparisons are lexicographical, numeric comparisons are <
-
-
-
