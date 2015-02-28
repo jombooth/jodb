@@ -106,7 +106,7 @@ while 1:
             print "ELAPSED TIME: %f seconds." % (time.time() - start)
 
         ipt = filter(None, gets().split(' '))
-        print ipt
+        # print ipt
 
         start = time.time()
 
