@@ -55,7 +55,7 @@ interpreter.py       : Loads the jo_db module. Then presents the user with a com
 
                        USAGE: python interpreter.py
                        Also possible: rlwrap python interpreter.py
-                       (use rlwrap if you want to be able to press)
+                       (use rlwrap if you want to be able to press "up" to access your last query)
                        send 'help' for instructions.
 
 test.csv             : A small csv file of integers used by the test.py script to verify basic functionality.
