@@ -24,8 +24,11 @@ def quicksort(lst, cmp_func):
     if len(lst) > 1:
         mid = len(lst)/2
         pivot = lst[mid]
-        left, right = [elt for elt in lst[:mid] + lst[mid+1:] if cmp_func(elt, pivot)], \
-                      [elt for elt in lst[:mid] + lst[mid+1:] if not cmp_func(elt, pivot)]
+        left, right = [],[]
+
+        for elt in lst[:mid] + lst[mid+1:]:
+            left.append(elt) if cmp_func(elt, pivot) else right.append(elt)
+
         return quicksort(left, cmp_func) + [pivot] + quicksort(right, cmp_func)
     else:
         return lst
