@@ -467,17 +467,14 @@ class DataSheet(object):
         # note that the purpose of the above was to ensure invertibility
         inv_column_mapping = inv_map(tagged_col)
 
-        def order_flip(b):
-            if order=="desc":
-                return not b
-            else:
-                return b
-
         def compare(a,b):
-            return order_flip(a[1] < b[1])
+            return a[1] < b[1]
 
         # punchline: all we really want to change is the row_map
         sorted_items = quicksort(tagged_col.values(), compare)
+
+        if order=="desc":
+            sorted_items.reverse()
 
         # this is precisely where our assumption that every key in row_map picks out
         # exactly one row, and that all the rows are picked out by some key becomes
