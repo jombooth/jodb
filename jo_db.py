@@ -476,16 +476,6 @@ class DataSheet(object):
         def compare(a,b):
             return order_flip(a[1] < b[1])
 
-        # def quicksort(lst, cmp_func):
-        #     if len(lst) > 1:
-        #         mid = len(lst)/2
-        #         pivot = lst[mid]
-        #         left, right = [elt for elt in lst[:mid] + lst[mid+1:] if cmp_func(elt, pivot)], \
-        #                       [elt for elt in lst[:mid] + lst[mid+1:] if not cmp_func(elt, pivot)]
-        #         return quicksort(left) + [pivot] + quicksort(right)
-        #     else:
-        #         return lst
-
         # punchline: all we really want to change is the row_map
         sorted_items = quicksort(tagged_col.values(), compare)
 
